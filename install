@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+echo -e "Install zsh-ansible-fzf plugin\n"
+
+if [ -d ~/.oh-my-zsh/custom/plugins/zsh-ansible-fzf ]; then
+    pushd ~/.oh-my-zsh/custom/plugins/zsh-ansible-fzf > /dev/null
+    git pull
+    echo -e "Restart your shell or reload config file(source ~/.zshrc)"
+    popd > /dev/null
+else
+    git clone https://github.com/alexiszamanidis/zsh-ansible-fzf.git ~/.oh-my-zsh/custom/plugins/zsh-ansible-fzf
+    echo -e "Add plugin to plugin list:"
+    echo -e "- Open .zshrc(e.g. code .zshrc, vim .zshrc)"
+    echo -e " - Add plugin to plugin list: 'plugins=(... zsh-ansible-fzf)'"
+    echo -e " - Restart your shell or reload config file(source ~/.zshrc)"
+fi

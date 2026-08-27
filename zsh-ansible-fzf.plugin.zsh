@@ -1,0 +1,3 @@
+#!/usr/bin/env zsh
+
+source "$(dirname "$0")/src/completions"

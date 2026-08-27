@@ -1,0 +1,70 @@
+#!/usr/bin/env zsh
+
+# ansible-playbook tag completion for -t / --tags / --skip-tags.
+# Works with fzf-tab: Tab lists tags, prefix filters them, comma skips already selected ones.
+
+_zsh_ansible_fzf_find_playbook() {
+    local word candidate
+    for word in $words; do
+        [[ $word == *.y(|a)ml ]] && { print -r -- $word; return 0 }
+    done
+    for candidate in local.yml local.yaml site.yml site.yaml playbook.yml playbook.yaml; do
+        [[ -f $candidate ]] && { print -r -- $candidate; return 0 }
+    done
+    return 1
+}
+
+_zsh_ansible_fzf_tag_scan_dir() {
+    local playbook dir
+    playbook=$(_zsh_ansible_fzf_find_playbook) || playbook=
+    if [[ -n $playbook ]]; then
+        dir=${playbook:a:h}
+    elif [[ -f ansible.cfg || -f local.yml || -d roles || -d tasks ]]; then
+        dir=$PWD
+    elif [[ -n $ZSH_ANSIBLE_FZF_FALLBACK_DIR && -d $ZSH_ANSIBLE_FZF_FALLBACK_DIR ]]; then
+        dir=$ZSH_ANSIBLE_FZF_FALLBACK_DIR
+    else
+        return 1
+    fi
+    print -r -- $dir
+}
+
+_zsh_ansible_fzf_collect_tags() {
+    local dir=$(_zsh_ansible_fzf_tag_scan_dir) || return 1
+    local -a tags
+    tags=(
+        all tagged untagged always never
+        ${(s.,.)${(j.,.)${(f)"$(
+            command grep -h -R --include='*.yml' --include='*.yaml' \
+                --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github \
+                -E '^[[:space:]]*tags:' "$dir" 2>/dev/null
+        )"}#*:}//[\[\]\"\' ]/}
+    )
+    print -l -- ${(ou)${(M)tags:#?*}}
+}
+
+_zsh_ansible_fzf_is_completing_tags() {
+    local prev=${words[CURRENT-1]}
+    local cur=${words[CURRENT]}
+    [[ $prev == -t || $prev == --tags || $prev == --skip-tags ]] && return 0
+    [[ $cur == --tags=* || $cur == --skip-tags=* ]] && return 0
+    return 1
+}
+
+_zsh_ansible_fzf_complete_tags() {
+    local -a tags
+    tags=(${(f)"$(_zsh_ansible_fzf_collect_tags)"})
+    (( $#tags )) || return 1
+    compset -P '(--tags=|--skip-tags=)'
+    _sequence _wanted ansible-tags expl tag compadd -a tags
+}
+
+_zsh_ansible_fzf() {
+    if _zsh_ansible_fzf_is_completing_tags; then
+        _zsh_ansible_fzf_complete_tags
+        return
+    fi
+    _ansible "$@"
+}
+
+(( $+functions[compdef] )) && compdef _zsh_ansible_fzf ansible-playbook
