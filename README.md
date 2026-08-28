@@ -61,12 +61,14 @@ Tags are collected from `tags:` in YAML under:
 
 You can add the following properties to your .zshrc file:
 
-| Property                       | Type   | Default value | Description                                              |
-| ------------------------------ | ------ | ------------- | -------------------------------------------------------- |
-| ZSH_ANSIBLE_FZF_FALLBACK_DIR   | string | unset         | Directory to scan for tags when no playbook is on the CLI |
+| Property                       | Type   | Default value | Description                                                                 |
+| ------------------------------ | ------ | ------------- | --------------------------------------------------------------------------- |
+| ZSH_ANSIBLE_FZF_FALLBACK_DIR   | string | unset         | Directory to scan for tags when no playbook is on the CLI                   |
+| ZSH_ANSIBLE_FZF_SPECIAL_TAGS   | string | unset         | Extra tags always offered for `--tags` / `--skip-tags` (e.g. `always never`) |
 
 ```
 export ZSH_ANSIBLE_FZF_FALLBACK_DIR="$HOME/ansible"
+export ZSH_ANSIBLE_FZF_SPECIAL_TAGS="all tagged untagged always never"
 ```
 
 ## Contribution

@@ -33,7 +33,7 @@ _zsh_ansible_fzf_collect_tags() {
     local dir=$(_zsh_ansible_fzf_tag_scan_dir) || return 1
     local -a tags
     tags=(
-        all tagged untagged always never
+        ${=ZSH_ANSIBLE_FZF_SPECIAL_TAGS}
         ${(s.,.)${(j.,.)${(f)"$(
             command grep -h -R --include='*.yml' --include='*.yaml' \
                 --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github \
