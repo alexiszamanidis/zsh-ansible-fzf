@@ -1,7 +1,9 @@
 #!/usr/bin/env zsh
 
 # ansible-playbook tag completion for -t / --tags / --skip-tags.
-# Works with fzf-tab: Tab lists tags, prefix filters them, comma skips already selected ones.
+# Works with fzf-tab: Tab lists tags, prefix filters them, already-selected
+# tags are omitted. When ZSH_ANSIBLE_FZF_COMMA_SUFFIX is enabled (default),
+# each completion appends a comma so you can Tab again; Space/Enter removes it.
 
 _zsh_ansible_fzf_find_playbook() {
     local word candidate
@@ -52,11 +54,24 @@ _zsh_ansible_fzf_is_completing_tags() {
 }
 
 _zsh_ansible_fzf_complete_tags() {
-    local -a tags
+    local -a tags already suf
     tags=(${(f)"$(_zsh_ansible_fzf_collect_tags)"})
     (( $#tags )) || return 1
     compset -P '(--tags=|--skip-tags=)'
-    _sequence _wanted ansible-tags expl tag compadd -a tags
+
+    # Everything before the current comma-separated fragment is already chosen.
+    if [[ $PREFIX == *,* ]]; then
+        already=("${(@s.,.)PREFIX}")
+        already=("${(@)already[1,-2]}")
+    fi
+    if [[ ${ZSH_ANSIBLE_FZF_COMMA_SUFFIX:-1} != 0 ]]; then
+        suf=(-qS ,)
+        # Do not add another comma when completing in the middle of a list.
+        compset -S ',*' && suf=()
+    fi
+    compset -P '*,'
+
+    _wanted ansible-tags expl tag compadd -F already "$suf[@]" -a tags
 }
 
 _zsh_ansible_fzf() {

@@ -2,7 +2,7 @@
 
 A ZSH plugin that completes **ansible-playbook tags** and works with **fzf-tab**.
 
-After `-t` / `--tags` / `--skip-tags`, press `TAB` to pick tags from your playbooks. Prefix filters the list. A trailing comma skips tags that are already selected.
+After `-t` / `--tags` / `--skip-tags`, press `TAB` to pick tags from your playbooks. Prefix filters the list. By default each completion appends a comma so you can press `TAB` again to add more tags. Press `SPACE` (or `Enter`) to drop the trailing comma when you are done. Already-selected tags are omitted from the list. Set `ZSH_ANSIBLE_FZF_COMMA_SUFFIX=0` to disable the trailing comma.
 
 ## Table of Contents
 
@@ -44,8 +44,9 @@ plugins=(... zsh-ansible-fzf fzf-tab)
 
 ```
 ansible-playbook -t <TAB>
-ansible-playbook -t zs<TAB>
-ansible-playbook -t zsh,<TAB>
+ansible-playbook -t zs<TAB>           # → zsh,
+ansible-playbook -t zsh,<TAB>         # → zsh,nvim,
+ansible-playbook -t zsh,nvim,<SPACE>  # → zsh,nvim
 ansible-playbook --tags <TAB>
 ansible-playbook --skip-tags <TAB>
 ```
@@ -65,10 +66,12 @@ You can add the following properties to your .zshrc file:
 | ------------------------------ | ------ | ------------- | --------------------------------------------------------------------------- |
 | ZSH_ANSIBLE_FZF_FALLBACK_DIR   | string | unset         | Directory to scan for tags when no playbook is on the CLI                   |
 | ZSH_ANSIBLE_FZF_SPECIAL_TAGS   | string | unset         | Extra tags always offered for `--tags` / `--skip-tags` (e.g. `always never`) |
+| ZSH_ANSIBLE_FZF_COMMA_SUFFIX   | string | `1`           | Append `,` after each completed tag so Tab can add more. Set to `0` to disable |
 
 ```
 export ZSH_ANSIBLE_FZF_FALLBACK_DIR="$HOME/ansible"
 export ZSH_ANSIBLE_FZF_SPECIAL_TAGS="all tagged untagged always never"
+export ZSH_ANSIBLE_FZF_COMMA_SUFFIX=0
 ```
 
 ## Contribution
