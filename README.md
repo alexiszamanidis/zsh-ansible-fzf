@@ -4,6 +4,14 @@ A ZSH plugin that completes **ansible-playbook tags** and works with **fzf-tab**
 
 After `-t` / `--tags` / `--skip-tags`, press `TAB` to pick tags from your playbooks. Prefix filters the list. By default each completion appends a comma so you can press `TAB` again to add more tags. Press `SPACE` (or `Enter`) to drop the trailing comma when you are done. Already-selected tags are omitted from the list. Set `ZSH_ANSIBLE_FZF_COMMA_SUFFIX=0` to disable the trailing comma.
 
+## Demo
+
+![zsh-ansible-fzf demo](assets/zsh-ansible-fzf-demo.gif)
+
+## Screenshot
+
+![zsh-ansible-fzf terminal screenshot](assets/zsh-ansible-fzf-screenshot.png)
+
 ## Table of Contents
 
 -   [Dependencies](#dependencies)
