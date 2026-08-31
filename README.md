@@ -18,6 +18,7 @@ After `-t` / `--tags` / `--skip-tags`, press `TAB` to pick tags from your playbo
 -   [Installation](#installation)
 -   [Usage](#usage)
 -   [Properties](#properties)
+-   [Errors](#errors)
 -   [Contribution](#contribution)
 -   [License](#license)
 
@@ -81,6 +82,12 @@ export ZSH_ANSIBLE_FZF_FALLBACK_DIR="$HOME/ansible"
 export ZSH_ANSIBLE_FZF_SPECIAL_TAGS="all tagged untagged always never"
 export ZSH_ANSIBLE_FZF_COMMA_SUFFIX=0
 ```
+
+## Errors
+
+This plugin runs during shell completion; it does not run `ansible-playbook`, so it cannot catch errors from a playbook execution. Its completion functions can return a nonzero status when completion is unavailable, which is normal and lets ZSH try another completer.
+
+If tag scanning itself fails, the plugin keeps the original failure status and prints a friendly two-line message with a link to the repository issue form.
 
 ## Contribution
 

@@ -5,6 +5,13 @@
 # tags are omitted. When ZSH_ANSIBLE_FZF_COMMA_SUFFIX is enabled (default),
 # each completion appends a comma so you can Tab again; Space/Enter removes it.
 
+_zsh_ansible_fzf_report_error() {
+    print -u2
+    print -u2
+    print -u2 -r -- "zsh-ansible-fzf could not complete tag completion."
+    print -u2 -r -- "Please report this issue: https://github.com/alexiszamanidis/zsh-ansible-fzf/issues/new/choose"
+}
+
 _zsh_ansible_fzf_find_playbook() {
     local word candidate
     for word in $words; do
@@ -32,16 +39,26 @@ _zsh_ansible_fzf_tag_scan_dir() {
 }
 
 _zsh_ansible_fzf_collect_tags() {
-    local dir=$(_zsh_ansible_fzf_tag_scan_dir) || return 1
+    local dir
     local -a tags
+    local tag_output grep_status tag_line
+    dir=$(_zsh_ansible_fzf_tag_scan_dir) || return 1
+    tag_output=$(command greps -h -R --include='*.yml' --include='*.yaml' \
+        --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github \
+        -E '^[[:space:]]*tags:' "$dir" 2>/dev/null)
+    grep_status=$?
+    if (( grep_status > 1 )); then
+        _zsh_ansible_fzf_report_error
+        return $grep_status
+    fi
     tags=(
         ${=ZSH_ANSIBLE_FZF_SPECIAL_TAGS}
-        ${(s.,.)${(j.,.)${(f)"$(
-            command grep -h -R --include='*.yml' --include='*.yaml' \
-                --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github \
-                -E '^[[:space:]]*tags:' "$dir" 2>/dev/null
-        )"}#*:}//[\[\]\"\' ]/}
     )
+    while IFS= read -r tag_line; do
+        tag_line=${tag_line#*:}
+        tag_line=${tag_line//[\[\]\"\' ]/}
+        tags+=( ${(s.,.)tag_line} )
+    done <<< "$tag_output"
     print -l -- ${(ou)${(M)tags:#?*}}
 }
 
